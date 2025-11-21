@@ -1,49 +1,153 @@
-library(sf)             
-library(terra)          # For raster handling (forest cover)
-library(dplyr)          # For data manipulation
-library(rnaturalearth)  # To get country boundaries
-library(units)          # To handle area units (m^2 to km^2)
+# ==============================================================================
+# DIAGNOSTIC & REPAIR SCRIPT
+# ==============================================================================
+library(sf)
+library(dplyr)
+library(rnaturalearth)
+library(readr)
+library(units)
 
-# Ensure spherical geometry is off if you experience issues, 
-# though usually keeping it on is better for accuracy.
-sf_use_s2(FALSE)
+# 1. SETUP
+# ------------------------------------------------------------------------------
+# Define your main folder
+base_dir <- "C:/Users/Asus/Desktop/Thesis Code R/Biodiversity data/Data/Polygons"
 
-# 1. Load world countries
+# Create if missing
+if(!dir.exists(base_dir)) dir.create(base_dir, recursive = TRUE)
+
+message("----------------------------------------------------------------")
+message(">>> STARTING DIAGNOSTICS IN: ", base_dir)
+message("----------------------------------------------------------------")
+
+# List all files in the folder to see what R sees
+all_files <- list.files(base_dir, recursive = TRUE, full.names = TRUE)
+message("Found ", length(all_files), " files in total.")
+
+# 2. LOAD BASE MAP
+# ------------------------------------------------------------------------------
 world <- ne_countries(scale = "medium", returnclass = "sf") %>%
   select(name, iso_a3, geometry) %>%
-  st_make_valid() # Fix potential topology errors
+  st_make_valid()
+world$area_km2 <- drop_units(st_area(st_transform(world, "ESRI:54009"))) / 1e6
 
-# Check the CRS (Coordinate Reference System). 
-# For area calculations, an Equal Area projection (like Mollweide) is preferred, 
-# but for simple intersections, WGS84 (EPSG:4326) is often used initially.
+# Initialize columns with 0 or NA
+world$biome_count <- NA
+world$pa_pct <- NA
+world$forest_pct <- NA
 
-# Load your Ecoregions shapefile
-# ecoregions <- st_read("path/to/Ecoregions2017.shp") 
+# 3. FIX BIOMES (Smart Search)
+# ------------------------------------------------------------------------------
+message("\n>>> LOOKING FOR ECOREGIONS...")
 
-# --- DUMMY DATA FOR DEMONSTRATION ---
-# Creating a fake ecoregion polygon to show the logic
-p1 <- st_polygon(list(rbind(c(0,0), c(10,0), c(10,10), c(0,10), c(0,0))))
-p2 <- st_polygon(list(rbind(c(10,0), c(20,0), c(20,10), c(10,10), c(10,0))))
-ecoregions <- st_sf(ECO_ID = c(1, 2), geometry = st_sfc(p1, p2), crs = st_crs(world))
-# ------------------------------------
+# Search for ANY shapefile with "Eco" in the name
+eco_candidates <- all_files[grep("Eco.*\\.shp$", all_files, ignore.case = TRUE)]
 
-# 1. Ensure CRS matches
-ecoregions <- st_transform(ecoregions, st_crs(world))
+if (length(eco_candidates) > 0) {
+  target_file <- eco_candidates[1] # Take the first one found
+  message("   [SUCCESS] Found file: ", basename(target_file))
+  
+  try({
+    eco <- st_read(target_file, quiet = TRUE)
+    eco <- st_make_valid(eco)
+    eco <- st_transform(eco, st_crs(world))
+    
+    # Check for the ID column (it changes names in different versions)
+    # Usually ECO_ID, eco_id, or OBJECTID
+    id_col <- names(eco)[grep("ID|CODE", names(eco), ignore.case=TRUE)][1]
+    
+    if(!is.na(id_col)) {
+      message("   Calculated using column: ", id_col)
+      eco_int <- st_intersection(world, eco)
+      stats <- eco_int %>% 
+        group_by(name) %>% 
+        summarise(count = n_distinct(.data[[id_col]])) %>% 
+        st_drop_geometry()
+      
+      world <- left_join(world, stats, by = "name") %>%
+        mutate(biome_count = ifelse(is.na(count), 0, count)) %>%
+        select(-count)
+    }
+  })
+} else {
+  message("   [FAILURE] No 'Ecoregions' shapefile found.")
+  message("   ACTION: Download Ecoregions2017.zip, EXTRACT it, and put .shp in the folder.")
+}
 
-# 2. Perform Spatial Intersection
-# This splits the ecoregions by country borders
-intersection_eco <- st_intersection(world, ecoregions)
+# 4. FIX PROTECTED AREAS (Natural Earth Download)
+# ------------------------------------------------------------------------------
+message("\n>>> ATTEMPTING PROTECTED AREAS DOWNLOAD...")
 
-# 3. Calculate Diversity (Count unique ecoregions per country)
-biome_diversity <- intersection_eco %>%
-  group_by(name) %>% # Group by Country Name
-  summarise(
-    num_ecoregions = n_distinct(ECO_ID) # Count unique IDs
-  ) %>%
-  st_drop_geometry()
+tryCatch({
+  # Download directly
+  pa <- ne_download(scale = 10, type = "parks_and_protected_lands", 
+                    category = "cultural", returnclass = "sf")
+  
+  if(!is.null(pa)) {
+    message("   [SUCCESS] Downloaded Natural Earth PA data.")
+    pa <- st_make_valid(pa)
+    pa_ea <- st_transform(pa, "ESRI:54009")
+    world_ea <- st_transform(world, "ESRI:54009")
+    
+    pa_int <- st_intersection(world_ea, pa_ea)
+    
+    stats_pa <- pa_int %>%
+      group_by(name) %>%
+      summarise(pa_area = sum(drop_units(st_area(geometry)), na.rm=TRUE)/1e6) %>%
+      st_drop_geometry()
+    
+    world <- left_join(world, stats_pa, by = "name") %>%
+      mutate(pa_pct = (ifelse(is.na(pa_area), 0, pa_area) / area_km2) * 100) %>%
+      select(-pa_area)
+    
+    world$pa_pct[world$pa_pct > 100] <- 100
+  }
+}, error = function(e) {
+  message("   [FAILURE] Could not download PA data. Check internet.")
+  message("   Error: ", e$message)
+})
 
-# 4. Merge back to main world data
-world_data <- left_join(world, biome_diversity, by = "name")
+# 5. FIX FOREST (Smart CSV Search)
+# ------------------------------------------------------------------------------
+message("\n>>> LOOKING FOR FOREST CSV...")
 
-# NAs mean 0 ecoregions found (likely small islands or mismatch), replace with 0
-world_data$num_ecoregions[is.na(world_data$num_ecoregions)] <- 0
+# Search for ANY CSV with "Forest" or "API" (World bank default name)
+csv_candidates <- all_files[grep("Forest|API_AG", all_files, ignore.case = TRUE)]
+# Filter only .csv
+csv_candidates <- csv_candidates[grep("\\.csv$", csv_candidates)]
+
+if(length(csv_candidates) > 0) {
+  target_csv <- csv_candidates[1]
+  message("   [SUCCESS] Found CSV: ", basename(target_csv))
+  
+  try({
+    # World Bank CSVs have 4 header rows to skip
+    df <- read_csv(target_csv, skip = 4, show_col_types = FALSE)
+    
+    # Find the last column automatically (usually the most recent year)
+    last_col_idx <- ncol(df)
+    last_col_name <- names(df)[last_col_idx]
+    message("   Using data from year/column: ", last_col_name)
+    
+    # Clean and Join
+    clean_forest <- df %>%
+      select(iso_a3 = `Country Code`, val = all_of(last_col_idx))
+    
+    world <- left_join(world, clean_forest, by = "iso_a3") %>%
+      mutate(forest_pct = val) %>%
+      select(-val)
+  })
+} else {
+  message("   [FAILURE] No Forest CSV found.")
+  message("   ACTION: Download World Bank Forest CSV and put it in the folder.")
+}
+
+# 6. SAVE CHECK
+# ------------------------------------------------------------------------------
+message("\n>>> SAVING FINAL RESULTS...")
+final_path <- file.path(base_dir, "Biodiversity_Variables_FIXED.csv")
+write.csv(st_drop_geometry(world), final_path, row.names = FALSE)
+
+message("----------------------------------------------------------------")
+message("Check the file: ", final_path)
+message("If columns are still NA, read the [FAILURE] messages above.")
+message("----------------------------------------------------------------")
