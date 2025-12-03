@@ -1,0 +1,26 @@
+# 00_setup_libraries.R
+# Load packages (tidyverse, ggplot2, etc.)
+
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("dplyr")) install.packages("dplyr")
+if (!require("readr")) install.packages("readr")
+if (!require("readxl")) install.packages("readxl")
+if (!require("stringr")) install.packages("stringr")
+if (!require("openxlsx")) install.packages("openxlsx")
+if (!require("WDI")) install.packages("WDI")
+if (!require("janitor")) install.packages("janitor")
+if (!require("here")) install.packages("here")
+
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(readxl)
+library(stringr)
+library(openxlsx)
+library(WDI)
+library(janitor)
+library(here)
+
+print("Libraries loaded successfully.")
