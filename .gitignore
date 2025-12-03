@@ -1,4 +1,15 @@
+# Ignore data
+data/raw/
+data/processed/
+
+# Ignore renv library
+renv/library/
+
+# Ignore R user config
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
+
+# Ignore output
+output/
