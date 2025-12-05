@@ -1,3 +1,0 @@
-# Missing Values Log
-
-(This file will be populated by the check_missing_data script)
