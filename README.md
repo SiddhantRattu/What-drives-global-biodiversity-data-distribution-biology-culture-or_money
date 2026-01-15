@@ -2,8 +2,6 @@
 
 Our understanding of global biodiversity distribution is shaped by our ability to observe, identify, and share species data. While access to biodiversity records (particularly through public repositories like GBIF) is greater than ever, the volume of data varies widely across countries. This disparity may partly reflect differences in taxonomic richness, but it is also influenced by each country’s cultural history, or its capacity to fund fieldwork, manage data, and support open access. Yet, the factors driving these differences remain understudied.
 
-This repository contains a reproducible R pipeline designed to aggregate, clean, and analyze global datasets to investigate these drivers.
-
 ---
 
 ## 📂 Project Structure
