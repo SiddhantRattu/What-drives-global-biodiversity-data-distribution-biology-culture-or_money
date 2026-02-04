@@ -13,3 +13,4 @@ renv/library/
 
 # Ignore output
 output/
+.DS_Store
