@@ -1,6 +1,6 @@
 # Ignore data
-data/raw/
-data/processed/
+# data/raw/
+# data/processed/
 
 # Ignore renv library
 renv/library/
@@ -13,3 +13,4 @@ renv/library/
 
 # Ignore output
 output/
+.DS_Store
