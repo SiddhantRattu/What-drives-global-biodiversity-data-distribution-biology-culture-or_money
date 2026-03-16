@@ -1,100 +1,65 @@
-
-
+# Load necessary libraries
 library(rgbif)
 library(tibble)
-library(readr)
+library(dplyr)
 library(countrycode)
+library(readr)
+library(writexl)
 
-
-recordsPerCountryGBIF <- function(list_of_country_codes, output_file = NULL){
+get_gbif_counts_final <- function(csv_file = "GBIF_records.csv", excel_file = "GBIF_records.xlsx") {
   
-  records_per_country <- tibble(
-    country_code_iso3 = character(),
-    n_records_gbif = numeric()
-  )
+  message("Step 1: Fetching counts from GBIF...")
   
-  for(code3 in list_of_country_codes){
-    
+  # Fetch all country counts in one request
+  res <- occ_search(limit = 0, facet = "country", facetLimit = 300)
   
-    code2 <- tryCatch(
-      {
-        countrycode(code3, origin = "iso3c", destination = "iso2c")
-      },
-      error = function(e) NA
-    )
-    
-   
-    if(is.na(code2)){
-      warning(paste("Skipping invalid country code:", code3))
-      n_records <- NA
-    } else {
-      
-      n_records <- tryCatch(
-        {
-          occ_count(country = code2)
-        },
-        error = function(e){
-          warning(paste("GBIF error for code:", code3, "-", e$message))
-          NA
-        }
-      )
-    }
-    
+  # Extract the data frame from the list
+  raw_counts <- res$facets$country
   
-    records_per_country <- rbind(
-      records_per_country,
-      tibble(
-        country_code_iso3 = code3,
-        n_records_gbif = n_records
-      )
-    )
-  }
+  message("Step 2: Processing and cleaning data...")
   
-
-  records_per_country$country_name <- countrycode(
-    records_per_country$country_code_iso3,
-    origin = "iso3c",
-    destination = "country.name"
-  )
+  # Process the results
+  processed_data <- raw_counts %>%
+    as_tibble() %>%
+    rename(country_code_iso2 = name, n_records_gbif = count) %>%
+    mutate(
+      # Convert ISO2 to ISO3
+      country_code_iso3 = countrycode(country_code_iso2, 
+                                      origin = "iso2c", 
+                                      destination = "iso3c", 
+                                      warn = FALSE),
+      # Convert ISO2 to Country Name
+      country_name = countrycode(country_code_iso2, 
+                                 origin = "iso2c", 
+                                 destination = "country.name", 
+                                 warn = FALSE)
+    ) %>%
+    # Manual fix for Kosovo (XK) which countrycode often misses
+    mutate(
+      country_name = ifelse(country_code_iso2 == "XK", "Kosovo", country_name),
+      country_code_iso3 = ifelse(country_code_iso2 == "XK", "XKX", country_code_iso3)
+    ) %>%
+    # Remove rows where we couldn't resolve a country (like 'Unknown' or 'ZZ')
+    filter(!is.na(country_name)) %>%
+    select(country_name, country_code_iso3, country_code_iso2, n_records_gbif) %>%
+    arrange(desc(n_records_gbif))
   
-
-  if(!is.null(output_file)){
-    write_csv(records_per_country, output_file)
-    message("Results saved to: ", output_file)
-  }
+  # Step 3: Save Files
+  message("Step 3: Saving files...")
   
-  return(records_per_country)
+  # Save CSV
+  write_csv(processed_data, csv_file)
+  
+  # Save Excel
+  write_xlsx(processed_data, excel_file)
+  
+  message("Done! Files created: ", csv_file, " and ", excel_file)
+  
+  return(processed_data)
 }
 
+# Run the fixed function
+final_results <- get_gbif_counts_final()
 
-country_codes_iso3 <- c(
-  "ABW","AFG","AGO","AIA","ALB","AND","ARE","ARG","ARM","ASM","ATA","ATG","AUS",
-  "AUT","AZE","BDI","BEL","BEN","BES","BFA","BGD","BGR","BHR","BHS","BIH","BLM","BLR","BLZ",
-  "BMU","BOL","BRA","BRB","BRN","BTN","BWA","CAF","CAN","CCK","CHE","CHL","CHN","CIV",
-  "CMR","COD","COG","COK","COL","COM","CPV","CRI","CUB","CUW","CYM","CYP","CZE","DEU",
-  "DJI","DMA","DNK","DOM","DZA","ECU","EGY","ERI","ESP","EST","ETH","FIN","FJI","FLK",
-  "FRA","FRO","FSM","GAB","GBR","GEO","GGY","GHA","GIB","GIN","GLP","GMB","GNB","GNQ","GRC",
-  "GRD","GRL","GTM","GUF","GUM","GUY","HND","HRV","HTI","HUN","IDN","IMN","IRL","IRN","IRQ",
-  "ISL","ISR","ITA","JAM","JOR","JPN","KAZ","KEN","KGZ","KHM","KIR","KNA","KOR","KWT","LAO",
-  "LBN","LBR","LBY","LCA","LIE","LKA","LSO","LTU","LUX","LVA","MAR","MCO","MDA","MDG","MDV",
-  "MEX","MHL","MKD","MLI","MLT","MMR","MNE","MNG","MNP","MOZ","MRT","MSR","MTQ","MUS","MWI",
-  "MYS","MYT","NAM","NCL","NER","NFK","NGA","NIC","NIU","NLD","NOR","NPL","NRU","NZL","OMN",
-  "PAK","PAN","PCN","PER","PHL","PLW","PNG","POL","PRK","PRT","PRY","PSE","PYF","QAT","REU",
-  "ROU","RUS","RWA","SAU","SDN","SEN","SGP","SHN","SLB","SLE","SLV","SMR","SOM","SRB","SSD",
-  "STP","SUR","SVK","SVN","SWE","SWZ","SYC","SYR","TCA","TCD","TGO","THA","TJK","TKL","TKM",
-  "TLS","TON","TTO","TUN","TUR","TUV","TWN","TZA","UGA","UKR","URY","USA","UZB","VAT","VCT",
-  "VEN","VGB","VIR","VNM","VUT","WLF","WSM","XKX","YEM","ZAF","ZMB","ZWE"
-)
-
-
-result <- recordsPerCountryGBIF(
-  country_codes_iso3,
-  output_file = "GBIF_records_all.csv"
-)
-
-
-print(result)
-
-
-
-
+# Preview the top 10
+print(head(final_results, 10))
