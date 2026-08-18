@@ -17,19 +17,6 @@ This research codebase, authored by **Siddhant Rattu**, conducts a macro-level q
 3. **💵 The Financial & Infrastructure Hypothesis**: Biodiversity data volume is constrained by national wealth (GDP, GDP per capita), R&D intensity (% of GDP), absolute research spending, and active scientific workforce density.
 
 ---
-
-> [!IMPORTANT]
-> ### 💡 Key Methodological Considerations & Data Issues
->
-> The following **6 critical data and statistical issues** must be accounted for in the empirical modeling methodology:
->
-> 1. 📊 **Extreme Right-Skewness of GBIF Records**: Raw species occurrence counts span six orders of magnitude ($10^2$ to $10^8$). Linear models on raw counts violate normality assumptions. **Solution**: Apply logarithmic transformations ($\log_{10}(\text{GBIF Records})$) or fit count-based GLMs (Negative Binomial / Poisson).
-> 2. 📐 **Land Area Confounding (Missing Offset Term)**: Larger countries naturally accumulate more records simply due to surface area (`area_total_km2`). **Solution**: Incorporate $\log(\text{area\_total\_km2})$ as an **offset term** in regression models or compute sampling density ($\text{Records} / \text{km}^2$).
-> 3. 🌐 **The Latitudinal Data Inversion Bias**: Species richness peaks in tropical low-latitude countries, whereas GBIF record volume peaks in temperate high-latitude northern nations. **Solution**: Include interaction terms ($\text{Latitude} \times \text{GDP}$) to decouple sampling effort from biological richness.
-> 4. 🔀 **Multicollinearity in Economic Predictors**: Socio-economic indicators (`wb_gdp_total`, `wb_gdp_per_capita`, `wb_research_gdp_pct`, `wb_total_researchers_count`, `hdi_proxy_gdp`) exhibit high pairwise correlations ($r > 0.70$). **Solution**: Script [`scripts/11_final_data_explorations.R`](file:///C:/Users/Siddhant/User/Documents/GitHub/What-drives-global-biodiversity-data-distribution-biology-culture-or_money/scripts/11_final_data_explorations.R) applies `caret::findCorrelation(cutoff = 0.6)` to prune collinear predictors and prevent Variance Inflation (VIF > 5).
-> 5. 🗺️ **Spatial Autocorrelation**: Neighboring countries share ecological biomes and geopolitical history, inducing spatial autocorrelation in model residuals. **Solution**: Compute **Moran's I** on spatial residuals or fit Spatial Error / Spatial Lag Models.
-> 6. 📉 **Sample Size Reduction via Missing Data**: Small island developing states (SIDS) frequently lack reported World Bank R&D indicators (`wb_research_gdp_pct`, `foreign_aid_oda`). Complete-case analysis reduces sample size from $217$ to $\sim 140$ nations. **Solution**: Discuss multiple imputation or report complete-case sensitivity analyses.
-
 ---
 
 ## 📂 Project Architecture
@@ -87,6 +74,7 @@ To replicate the analytical workflow, execute the R scripts in `scripts/` in num
 | **09** | **`09_worldbank_wdi_fetcher.R`** | Queries World Bank WDI API for indicators spanning **2005** to **2025** (GDP, R&D %, Urbanization %). | Economic Indicators |
 | **10** | **`10_final_output_aggregation.R`** | Aggregates all indicators into a color-coded Excel workbook ([`data/results/Final_Dataset_Complete.xlsx`](file:///C:/Users/Siddhant/User/Documents/GitHub/What-drives-global-biodiversity-data-distribution-biology-culture-or_money/data/results/Final_Dataset_Complete.xlsx)). | `Final_Dataset_Complete.xlsx` |
 | **11** | **`11_final_data_explorations.R`** | Evaluates log-log relationships, correlation matrices, and prunes multicollinearity via `caret::findCorrelation(cutoff = 0.6)`. | Model Diagnostics |
+| **12** | **`12_histogram_plots_correlations.R`** | Generates distribution histograms, 2-variable scatter plots, and correlation matrix heatmap outputs. | `data/results/*.png & *.csv` |
 
 ---
 
