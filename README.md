@@ -1,6 +1,7 @@
 # 🌍 Global Biodiversity Data Distribution: Biology, Culture, or Money?
 
 > **Author**: **Siddhant Rattu**  
+> **Supervisor**: **Florencia Grattarola**  
 > **Environment**: R (**renv** version control, R **4.6.0**)  
 > **Repository**: `What-drives-global-biodiversity-data-distribution-biology-culture-or_money`
 
@@ -10,7 +11,7 @@
 
 Our understanding of global species distribution is fundamentally shaped by public scientific repositories—most notably the **Global Biodiversity Information Facility ([GBIF](https://www.gbif.org/))**. While digital species occurrence records exceed two billion entries worldwide, geographic sampling density is severely skewed across national borders.
 
-This research codebase, authored by **Siddhant Rattu**, conducts a macro-level quantitative investigation across **200+ countries** to evaluate the primary structural drivers of global biodiversity data distribution by testing three core hypotheses:
+This research codebase, authored by **Siddhant Rattu** under the supervision of **Florencia Grattarola**, conducts a macro-level quantitative investigation across **200+ countries** to evaluate the primary structural drivers of global biodiversity data distribution by testing three core hypotheses:
 
 1. **🌿 The Biological Hypothesis**: Biodiversity data volume is driven by intrinsic ecological richness (biome diversity, species endemicity, protected area coverage %, and tropical latitude).
 2. **🏛️ The Cultural & Historical Hypothesis**: Biodiversity data volume is shaped by colonial history, official language, and open-knowledge governance policies.
