@@ -48,7 +48,7 @@ What-drives-global-biodiversity-data-distribution-biology-culture-or_money/
 │   ├── 08_geoboundaries_fetcher.R                            # Administrative boundary metadata retrieval
 │   ├── 09_worldbank_wdi_fetcher.R                            # World Bank API data retrieval (**2005-2025**)
 │   ├── 10_final_output_aggregation.R                         # Data synthesis & Excel report builder
-│   └── 11_final_data_explorations.R                         # Correlation matrices & caret correlation pruning
+│   └── 11_simple_histograms.R                                # Simple exploratory distribution histograms
 │
 └── 📁 drafts/                                                   # LEGACY ARCHIVES
     └── code_archive/                                         # Archived code drafts (purged of redundant raw files)
@@ -73,8 +73,7 @@ To replicate the analytical workflow, execute the R scripts in `scripts/` in num
 | **08** | **`08_geoboundaries_fetcher.R`** | Fetches standardized administrative boundary metadata from the GeoBoundaries API. | Boundary Metadata |
 | **09** | **`09_worldbank_wdi_fetcher.R`** | Queries World Bank WDI API for indicators spanning **2005** to **2025** (GDP, R&D %, Urbanization %). | Economic Indicators |
 | **10** | **`10_final_output_aggregation.R`** | Aggregates all indicators into a color-coded Excel workbook ([`data/results/Final_Dataset_Complete.xlsx`](file:///C:/Users/Siddhant/User/Documents/GitHub/What-drives-global-biodiversity-data-distribution-biology-culture-or_money/data/results/Final_Dataset_Complete.xlsx)). | `Final_Dataset_Complete.xlsx` |
-| **11** | **`11_final_data_explorations.R`** | Evaluates log-log relationships, correlation matrices, and prunes multicollinearity via `caret::findCorrelation(cutoff = 0.6)`. | Model Diagnostics |
-| **12** | **`12_histogram_plots_correlations.R`** | Generates distribution histograms, 2-variable scatter plots, and correlation matrix heatmap outputs. | `data/results/*.png & *.csv` |
+| **11** | **`11_simple_histograms.R`** | Generates simple exploratory distribution histograms across key indicators. | `data/results/simple_histograms.png` |
 
 ---
 
@@ -131,5 +130,5 @@ To reproduce the analysis on your local machine:
    source("scripts/00_setup_libraries.R")
    source("scripts/05_standardize_variables_and_pa_pct.R")
    source("scripts/10_final_output_aggregation.R")
-   source("scripts/11_final_data_explorations.R")
+   source("scripts/11_simple_histograms.R")
    ```

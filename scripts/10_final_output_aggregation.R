@@ -5,6 +5,7 @@
 # Data Range: **2010** to **2024**
 # Purpose: Merge all datasets into final color-coded Excel report
 # ==============================================================================
+options(repos = c(CRAN = "https://cloud.r-project.org"))
 if (!require("dplyr")) install.packages("dplyr")
 if (!require("readr")) install.packages("readr")
 if (!require("readxl")) install.packages("readxl")
