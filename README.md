@@ -94,31 +94,32 @@ To replicate the analytical workflow, execute the R scripts in `scripts/` in num
 
 All percentage indicators strictly adhere to the unified **`_pct`** suffix convention:
 
-| Category | Database Variable Name | Description | Type | Expected Effect | Empirical Result |
+| Category | Database Variable Name | Description | Type | Expected Effect | Does it follow expectation? |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Money** | `wb_gdp_per_capita` | GDP per capita in current USD | Continuous | Positive | **Supported** ($r > 0.55$) |
-| **Money** | `wb_gdp_total` | Total GDP in current USD | Continuous | Positive | **Supported** ($r > 0.60$) |
-| **Money** | `wb_research_gdp_pct` | R&D expenditure as % of GDP | Continuous (`_pct`) | Positive | **Supported** |
-| **Money** | `wb_researchers_per_million_people` | Active researchers per million inhabitants | Continuous | Positive | **Supported** |
-| **Money** | `wb_total_research_spending_usd` | Total national R&D spending in USD | Continuous | Positive | **Supported** |
-| **Money** | `wb_total_researchers_count` | Absolute count of active researchers | Continuous | Positive | **Supported** |
-| **Money** | `foreign_aid_oda` | Official biodiversity aid received (USD) | Continuous | Positive | **Partially Supported** |
-| **Money** | `hdi_proxy_gdp` / `hdi_proxy_life` | HDI sub-index proxies (Living & Health) | Continuous | Positive | **Supported** |
-| **Culture** | `main_language` | Most widely spoken national language | Categorical | Mixed | **Supported** |
-| **Culture** | `is_english_main` | English primary language indicator | Binary | Positive | **Supported** |
-| **Culture** | `main_religion_pct` | Adherence % to main religion | Continuous (`_pct`) | Mixed | **Not Supported** |
-| **Culture** | `atheists_non_religious_pct` | Secular / Atheist population % | Continuous (`_pct`) | Positive | **Partially Supported** |
-| **Culture** | `ever_colonized` / `colonizer` | Colonial status & primary colonizing power | Categorical | Mixed | **Supported** |
-| **Biology** | `n_records_gbif` | Total registered GBIF occurrence records | Response Variable | N/A | Target Outcome |
-| **Biology** | `biome_diversity_count` | Count of unique terrestrial ecoregions | Continuous | Positive | **Supported** |
-| **Biology** | `terrestrial_protected_area_pct` | Terrestrial Protected Area % | Continuous (`_pct`) | Positive | **Supported** |
-| **Biology** | `forest_cover_pct` | Forest area % of total land area | Continuous (`_pct`) | Positive | **Supported** |
-| **Biology** | `mean_latitude` | Absolute centroid latitude (degrees) | Continuous | Negative | **Not Supported** (Data Bias) |
-| **Biology** | `endemic_tetrapods_total` | Count of endemic species | Continuous | Positive | **Partially Supported** |
-| **Structure** | `wb_population` | Total national population | Continuous | Positive | **Supported** |
-| **Structure** | `area_total_km2` | Total land surface area ($\text{km}^2$) | Continuous | Positive | **Supported** |
-| **Structure** | `wb_population_density` | Inhabitants per $\text{km}^2$ | Continuous | Mixed | **Partially Supported** |
-| **Structure** | `wb_urbanisation_pct_urban` | Urban population % | Continuous (`_pct`) | Positive | **Supported** |
+| **Money** | `wb_gdp_per_capita` | GDP per capita in current USD | Continuous | Countries with larger GDP per capita have more records | **YES** ($r > 0.55$) |
+| **Money** | `wb_gdp_total` | Total GDP in current USD | Continuous | Countries with larger total GDP have more records | **YES** ($r > 0.60$) |
+| **Money** | `wb_research_gdp_pct` | R&D expenditure as % of GDP | Continuous (`_pct`) | Countries investing more in R&D have more records | **YES** |
+| **Money** | `wb_researchers_per_million_people` | Researchers per million inhabitants | Continuous | Countries with more researchers produce more records | **YES** |
+| **Money** | `foreign_aid_oda` | Biodiversity aid received (USD) | Continuous | Countries receiving more biodiversity aid have more records | **PARTIALLY** |
+| **Money** | `hdi_proxy_gdp` / `hdi_proxy_life` | HDI proxies (Living & Health) | Continuous | Countries with higher HDI have more records | **YES** |
+| **Culture** | `main_language` | Most widely spoken language | Categorical | Language affects GBIF records | **YES** |
+| **Culture** | `is_english_main` | English primary language indicator | Binary | English main language countries have more records | **YES** |
+| **Culture** | `main_religion` / `main_religion_pct` | Main religion & adherence % | Categorical / Continuous | Religion affects GBIF records | **NO** |
+| **Culture** | `atheists_non_religious_pct` | Secular / Atheist population % | Continuous (`_pct`) | Higher non-religiosity correlates with scientific data | **PARTIALLY** |
+| **Culture** | `ever_colonized` / `colonizer` | Colonial status & colonizing power | Categorical | Colonizers have more records; colonized face bias | **YES** |
+| **Culture** | `open_knowledge_score` | Open Knowledge Index score | Continuous | Higher open knowledge scores lead to more records | **YES** |
+| **Culture** | `is_main_english_spanish_arabic` | Government / major language classification | Categorical | Open / democratic systems have more records | **YES** |
+| **Biology** | `n_records_gbif` | Registered GBIF occurrence records | Response Variable | Target outcome variable | **Target Outcome** |
+| **Biology** | `biome_diversity_count` | Count of unique ecoregions | Continuous | Countries with more biomes have more records | **YES** |
+| **Biology** | `terrestrial_protected_area_pct` | Terrestrial Protected Area % | Continuous (`_pct`) | More protected area % leads to more records | **YES** |
+| **Biology** | `forest_cover_pct` | Forest area % of total land area | Continuous (`_pct`) | Higher forest cover leads to more records | **YES** |
+| **Biology** | `mean_latitude` | Absolute centroid latitude (degrees) | Continuous | Tropical lower latitude nations have more records | **NO** (Sampling Bias) |
+| **Biology** | `endemic_tetrapods_total` | Count of endemic species | Continuous | More endemic species attract more research | **PARTIALLY** |
+| **Structure** | `wb_population` | Total national population | Continuous | Larger populations provide more observers | **YES** |
+| **Structure** | `area_total_km2` | Total surface area ($\text{km}^2$) | Continuous | Larger countries have more habitats and records | **YES** |
+| **Structure** | `wb_population_density` | Inhabitants per $\text{km}^2$ | Continuous | Density correlates with observer availability | **PARTIALLY** |
+| **Structure** | `wb_urbanisation_pct_urban` | Urban population % | Continuous (`_pct`) | Urbanized countries have more records (citizen science) | **YES** |
+| **Structure** | `mean_latitude` / `climate_zone` | Köppen climate classification proxy | Categorical | Temperate zone countries contribute more records | **YES** |
 
 ---
 
