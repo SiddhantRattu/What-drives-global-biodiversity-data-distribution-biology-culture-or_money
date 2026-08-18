@@ -72,7 +72,7 @@ To replicate the analytical workflow, execute the R scripts in `scripts/` in num
 | **07** | **`07_gbif_record_fetcher.R`** | Queries GBIF API (`rgbif`) to fetch live species occurrence counts per country. | `GBIF_records.csv` |
 | **08** | **`08_geoboundaries_fetcher.R`** | Fetches standardized administrative boundary metadata from the GeoBoundaries API. | Boundary Metadata |
 | **09** | **`09_worldbank_wdi_fetcher.R`** | Queries World Bank WDI API for indicators spanning **2005** to **2025** (GDP, R&D %, Urbanization %). | Economic Indicators |
-| **10** | **`10_final_output_aggregation.R`** | Aggregates all indicators into a color-coded Excel workbook ([`data/results/Final_Dataset_Complete.xlsx`](file:///C:/Users/Siddhant/User/Documents/GitHub/What-drives-global-biodiversity-data-distribution-biology-culture-or_money/data/results/Final_Dataset_Complete.xlsx)). | `Final_Dataset_Complete.xlsx` |
+| **10** | **`10_final_output_aggregation.R`** | Aggregates all indicators into the final dataset ([`data/results/Final_DATASET.csv`](file:///C:/Users/Siddhant/User/Documents/GitHub/What-drives-global-biodiversity-data-distribution-biology-culture-or_money/data/results/Final_DATASET.csv)) and color-coded Excel report workbook ([`data/results/Final_Dataset_Complete.xlsx`](file:///C:/Users/Siddhant/User/Documents/GitHub/What-drives-global-biodiversity-data-distribution-biology-culture-or_money/data/results/Final_Dataset_Complete.xlsx)). | `Final_DATASET.csv` & `Final_Dataset_Complete.xlsx` |
 | **11** | **`11_simple_histograms.R`** | Generates simple exploratory distribution histograms across key indicators. | `data/results/simple_histograms.png` |
 
 ---
