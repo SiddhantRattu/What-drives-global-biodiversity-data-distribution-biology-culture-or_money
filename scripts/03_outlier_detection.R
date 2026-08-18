@@ -1,4 +1,9 @@
+# ==============================================================================
 # 03_outlier_detection.R
+# Author: Siddhant Rattu
+# Last Updated: **August 2026**
+# Logic: Statistical validation - identify Z-score outliers (>3 SD)
+# ==============================================================================
 # Logic: Area vs Population plots
 
 library(tidyverse)

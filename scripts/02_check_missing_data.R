@@ -1,4 +1,9 @@
+# ==============================================================================
 # 02_check_missing_data.R
+# Author: Siddhant Rattu
+# Last Updated: **August 2026**
+# Logic: Quality assurance - audit missing values across predictors
+# ==============================================================================
 # Logic: Identify NA values vs. script errors
 
 library(tidyverse)

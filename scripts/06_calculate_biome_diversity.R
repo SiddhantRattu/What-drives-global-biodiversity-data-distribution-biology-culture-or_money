@@ -1,5 +1,8 @@
 # ==============================================================================
-# DIAGNOSTIC & REPAIR SCRIPT
+# 06_calculate_biome_diversity.R
+# Author: Siddhant Rattu
+# Last Updated: **August 2026**
+# Purpose: Calculate unique ecoregions & Protected Area surface percentages using sf
 # ==============================================================================
 library(sf)
 library(dplyr)

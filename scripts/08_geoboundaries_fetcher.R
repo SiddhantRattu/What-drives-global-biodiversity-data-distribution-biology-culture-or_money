@@ -1,3 +1,9 @@
+# ==============================================================================
+# 08_geoboundaries_fetcher.R
+# Author: Siddhant Rattu
+# Last Updated: **August 2026**
+# Purpose: Fetch administrative boundary metadata from GeoBoundaries API
+# ==============================================================================
 
 if (!require("httr")) install.packages("httr")
 if (!require("jsonlite")) install.packages("jsonlite")

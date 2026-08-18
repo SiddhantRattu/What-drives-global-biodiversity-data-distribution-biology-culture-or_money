@@ -1,4 +1,9 @@
-###
+# ==============================================================================
+# 11_final_data_explorations.R
+# Author: Siddhant Rattu
+# Last Updated: **August 2026**
+# Purpose: Exploratory data analysis, correlation matrices, & multicollinearity checks
+# ==============================================================================
 
 library(janitor)
 library(patchwork)
@@ -12,10 +17,10 @@ options(knitr.kable.NA = '')
 options(scipen=999)
 
 
-data_countries_variables <- readxl::read_xlsx('docs/Final_Dataset.xlsx', na = 'NA') %>% 
+data_file <- ifelse(file.exists('data/results/Final_DATASET.csv'), 'data/results/Final_DATASET.csv', ifelse(file.exists('data/processed/Final_DATASET.csv'), 'data/processed/Final_DATASET.csv', 'docs/Final_DATASET.csv'))
+data_countries_variables <- readr::read_csv(data_file, show_col_types = FALSE) %>% 
   janitor::clean_names() %>% 
-  rename(biome_diversity_count=
-           biome_diversity_count_count_of_unique_ecosystems_in_the_country)
+  rename(biome_diversity_count = any_of(c("biome_diversity_count_count_of_unique_ecosystems_in_the_country", "biome_diversity_count")))
 data_countries_variables %>% head(n=25) 
 
 ##################################################
@@ -49,12 +54,18 @@ data_countries_variables %>%
 # FINAL VARIABLES SELECTED
 
 data_models <- data_countries_variables %>% 
+  # Standardize protected area variable and percentage naming criteria
+  rename(
+    wb_urbanisation_pct_urban = matches("wb_urbanisation_percent_urban|wb_urbanisation_pct_urban"),
+    atheists_non_religious_pct = matches("% atheists/non-religious|x_atheists_non_religious|atheists_non_religious_pct"),
+    main_religion_pct = matches("main_religion_percentage|main_religion_pct")
+  ) %>% 
   select(-c(wb_percent_gdp_for_research,
             wb_researchers_per_million_people, 
             wb_total_researchers_count,
             wb_total_research_spending_usd,
             foreign_aid_oda,
-            pa_coverage_pct)) %>% 
+            any_of(c("pa_coverage_pct", "wb_percent_gdp_for_research_new")))) %>% 
   drop_na() %>% 
   mutate(ever_colonized = as.factor(ever_colonized))
 

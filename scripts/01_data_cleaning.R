@@ -1,5 +1,9 @@
+# ==============================================================================
 # 01_data_cleaning.R
-# Logic: Rename Country, Colonizers, Language, Merge Datasets
+# Author: Siddhant Rattu
+# Last Updated: **August 2026**
+# Logic: Rename Country, Colonizers, Language, Merge Datasets (ISO3C)
+# ==============================================================================
 
 library(tidyverse)
 library(janitor)

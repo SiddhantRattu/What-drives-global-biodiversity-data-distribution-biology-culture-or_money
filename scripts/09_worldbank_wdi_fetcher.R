@@ -1,3 +1,11 @@
+# ==============================================================================
+# 09_worldbank_wdi_fetcher.R
+# Author: Siddhant Rattu
+# Last Updated: **August 2026**
+# Target Years: **2005** to **2025**
+# Purpose: Fetch API data (World Bank WDI, HDI, land cover) for indicator metrics
+# ==============================================================================
+
 library(WDI)
 library(httr)
 library(readr)

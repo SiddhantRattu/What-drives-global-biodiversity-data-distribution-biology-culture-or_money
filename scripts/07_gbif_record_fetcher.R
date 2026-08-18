@@ -1,4 +1,9 @@
-# Load necessary libraries
+# ==============================================================================
+# 07_gbif_record_fetcher.R
+# Author: Siddhant Rattu
+# Last Updated: **August 2026**
+# Purpose: Fetch live biodiversity species occurrence counts per country from GBIF API
+# ==============================================================================
 library(rgbif)
 library(tibble)
 library(dplyr)

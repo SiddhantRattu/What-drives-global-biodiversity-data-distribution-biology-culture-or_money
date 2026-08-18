@@ -1,5 +1,9 @@
 # ==============================================================================
-# SETUP & LIBRARIES
+# 10_final_output_aggregation.R
+# Author: Siddhant Rattu
+# Last Updated: **August 2026**
+# Data Range: **2010** to **2024**
+# Purpose: Merge all datasets into final color-coded Excel report
 # ==============================================================================
 if (!require("dplyr")) install.packages("dplyr")
 if (!require("readr")) install.packages("readr")
@@ -128,19 +132,26 @@ final_complete <- final_df %>%
     hdi_proxy_gdp = coalesce(hdi_proxy_gdp, hdi_proxy_gdp_new),
     hdi_proxy_life = coalesce(hdi_proxy_life, hdi_proxy_life_new),
     wb_population = coalesce(as.numeric(wb_population), as.numeric(wb_population_new)),
-    wb_urbanisation_percent_urban = coalesce(wb_urbanisation_percent_urban, wb_urbanisation_percent_urban_new),
+    wb_urbanisation_pct_urban = coalesce(wb_urbanisation_percent_urban, wb_urbanisation_percent_urban_new),
     ever_colonized = coalesce(ever_colonized, ever_colonized_new),
     mean_latitude = coalesce(mean_latitude, mean_latitude_new),
     n_records_gbif = coalesce(n_records_gbif, n_records_gbif_new),
     
-    # New Data Sources
+    # New Data Sources & Unified _pct Naming Criteria
     forest_cover_pct = coalesce(forest_cover_pct, forest_cover_pct_new),
     biome_diversity_count = coalesce(biome_diversity_count, biome_count_new),
-    wb_percent_gdp_for_research = coalesce(wb_percent_gdp_for_research, wb_percent_gdp_for_research_new),
+    wb_research_gdp_pct = coalesce(wb_percent_gdp_for_research, wb_percent_gdp_for_research_new),
     wb_researchers_per_million_people = coalesce(wb_researchers_per_million_people, wb_researchers_per_million_people_new),
     
+    # Standardize Protected Area (PA) to percentage (_pct)
+    terrestrial_protected_area_pct = if("terrestrial_protected_area_pct" %in% names(.)) {
+      coalesce(terrestrial_protected_area_pct, pa_coverage_pct)
+    } else {
+      pa_coverage_pct
+    },
+    
     # Calculations
-    wb_total_research_spending_usd = wb_gdp_total * (wb_percent_gdp_for_research / 100),
+    wb_total_research_spending_usd = wb_gdp_total * (wb_research_gdp_pct / 100),
     wb_total_researchers_count = (wb_population / 1000000) * wb_researchers_per_million_people,
     
     # Colonizer Logic
@@ -151,26 +162,26 @@ final_complete <- final_df %>%
     )
   ) %>%
   # Cleanup
-  select(-ends_with("_new"), -matches("forest_cover_pct_new|biome_count_new"))
+  select(-ends_with("_new"), -matches("forest_cover_pct_new|biome_count_new|pa_coverage_pct|wb_percent_gdp_for_research|wb_urbanisation_percent_urban"))
 
 # ==============================================================================
 # 4. COLORING & EXPORT
 # ==============================================================================
 
-# Categorization
-vars_money <- c("wb_gdp_per_capita", "wb_gdp_total", "wb_percent_gdp_for_research", 
+# Categorization (Unified _pct naming criteria)
+vars_money <- c("wb_gdp_per_capita", "wb_gdp_total", "wb_research_gdp_pct", 
                 "wb_researchers_per_million_people", "foreign_aid_oda", 
                 "hdi_proxy_gdp", "hdi_proxy_life", 
                 "wb_total_research_spending_usd", "wb_total_researchers_count")
 
-vars_hc <- c("main_language_code", "is_english_main", "ever_colonized", 
-             "colonizer", "open_knowledge_score")
+vars_hc <- c("main_language", "is_english_main", "ever_colonized", 
+             "colonizer", "open_knowledge_score", "main_religion_pct", "atheists_non_religious_pct")
 
 vars_structure <- c("wb_population", "area_total_km2", "wb_population_density", 
-                    "wb_urbanisation_percent_urban")
+                    "wb_urbanisation_pct_urban")
 
-vars_bio <- c("n_records_gbif", "biome_diversity_count", "pa_coverage_pct", 
-              "forest_cover_pct", "mean_latitude")
+vars_bio <- c("n_records_gbif", "biome_diversity_count", "terrestrial_protected_area_pct", 
+              "forest_cover_pct", "mean_latitude", "endemic_tetrapods_total")
 
 vars_basic <- c("iso3c", "country")
 
@@ -198,5 +209,10 @@ for (i in seq_along(names(final_complete))) {
   else addStyle(wb, "Final Data", style = style_def, rows = 1, cols = i)
 }
 
-saveWorkbook(wb, "Final_Dataset_Complete.xlsx", overwrite = TRUE)
-message("Processing Complete. File saved as 'Final_Dataset_Complete.xlsx'")
+# Ensure results output directory exists
+if (!dir.exists("data/results")) {
+  dir.create("data/results", recursive = TRUE)
+}
+
+saveWorkbook(wb, "data/results/Final_Dataset_Complete.xlsx", overwrite = TRUE)
+message("Processing Complete. Final output saved to 'data/results/Final_Dataset_Complete.xlsx'")

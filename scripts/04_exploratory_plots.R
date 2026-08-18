@@ -1,4 +1,9 @@
+# ==============================================================================
 # 04_exploratory_plots.R
+# Author: Siddhant Rattu
+# Last Updated: **August 2026**
+# Logic: Exploratory Data Analysis & initial distribution histograms
+# ==============================================================================
 # Logic: Histograms for distributions
 
 library(tidyverse)

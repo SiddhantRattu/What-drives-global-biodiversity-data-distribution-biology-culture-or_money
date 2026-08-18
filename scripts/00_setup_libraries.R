@@ -1,5 +1,9 @@
+# ==============================================================================
 # 00_setup_libraries.R
-# Load packages (tidyverse, ggplot2, etc.)
+# Author: Siddhant Rattu
+# Last Updated: **August 2026**
+# Logic: Package setup & environment configuration
+# ==============================================================================
 
 if (!require("tidyverse")) install.packages("tidyverse")
 if (!require("ggplot2")) install.packages("ggplot2")
