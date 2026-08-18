@@ -30,7 +30,7 @@ What-drives-global-biodiversity-data-distribution-biology-culture-or_money/
 ├── 📁 data/                                                     # DATA ASSETS
 │   ├── 📁 raw/                                               # Immutable raw datasets (COLDAT, Forest Data, WDI)
 │   ├── 📁 processed/                                         # Clean intermediate CSVs (Final_DATASET.csv)
-│   └── 📁 results/                                           # Final Results (Final_Dataset_Complete.xlsx & Final_DATASET.csv)
+│   └── 📁 results/                                           # Final Results (Final_Dataset_Complete.xlsx)
 │
 ├── 📁 docs/                                                     # SCHEMAS & METADATA
 │   ├── column_definitions.md                                 # Human-readable variable schema & Protected Area %
